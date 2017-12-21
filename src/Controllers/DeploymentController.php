@@ -42,16 +42,16 @@ class DeploymentController {
                     $logger->info('Deployed branch: ' .  @$branch . ' Commit: ' . $commit_hash);
                 }
 
-                return $response->withStatus(200)->withJson('Deployment completed');
+                return $response->withStatus(200)->withJson(array('response' => 'Deployment completed'));
             } else {
                 $logger->error('Payload not found');
 
-                return $response->withStatus(400)->withJson('Payload not found');
+                return $response->withStatus(400)->withJson(array('error' => 'Payload not found'));
             }
         } else {
             $logger->error('Webhook not valid');
 
-            return $response->withStatus(403)->withJson('Webhook not valid');
+            return $response->withStatus(403)->withJson(array('error' => 'Webhook not valid'));
         }
     }
 }
