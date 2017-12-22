@@ -18,10 +18,10 @@ $container['logger'] = function ($c) {
     return $logger;
 };
 
-// main controller
-$container['Controller'] = function ($c)
+// home controller
+$container['HomeController'] = function ($c)
 {
-    return new App\Controllers\Controller;
+    return new App\Controllers\HomeController;
 };
 
 // deployment controller

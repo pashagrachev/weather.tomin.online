@@ -5,6 +5,13 @@ use Slim\Http\Response;
 use App\Controllers;
 
 // Routes
+$app->any('/', function(Request $request, Response $response){
+    $this->logger->info("Slim-Skeleton '/' route");
+
+    $controller = new Controllers\HomeController;
+    return $controller($request, $response);
+});
+
 
 $app->any('/deployment', function(Request $request, Response $response){
     $this->logger->info("Slim-Skeleton '/deployment' route");
