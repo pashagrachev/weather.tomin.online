@@ -18,17 +18,17 @@ class HomeController
         $logger->pushHandler($file_handler);
 
         if($req['group_id'] == getenv('VK_GROUP_ID')) {
-            $logger->info('Group ID ' . $req['group_id'] . 'verified');
+            $logger->info('Group ID ' . $req['group_id'] . ' verified');
 
             if($req['secret'] == getenv('VK_SECRET_KEY')) {
-                $logger->info('Secret key ' . $req['secret'] . 'verified');
+                $logger->info('Secret key ' . $req['secret'] . ' verified');
 
                 switch ($req['type']) {
                     case 'confirmation':
                         $logger->info('Confirmation token sent');
                         return $response->withStatus(200)->write(getenv('VK_API_CONFIRMATION_TOKEN'));
                     case 'message_new':
-                        file_put_contents('../../logs/test.log', $req);
+                        file_put_contents('../../logs/test.log', serialize($req), 'FILE_APPEND');
 
                         $logger->info('Status ok sent');
                         return $response->withStatus(200)->write('ok');
