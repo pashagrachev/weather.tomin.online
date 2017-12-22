@@ -10,25 +10,40 @@ use Monolog\Handler\StreamHandler;
 class HomeController
 {
     public function __invoke(Request $request, Response $response) {
-        $event = json_decode(file_get_contents('php://input'), true);
+        $req = $request->getParsedBody();
 
         $logger = new Logger('bot');
         $logger->pushProcessor(new UidProcessor);
         $file_handler = new StreamHandler("../logs/bot.log");
         $logger->pushHandler($file_handler);
 
-        $logger->info('Event ' . print_r($event));
+        if($req['group_id'] == getenv('VK_GROUP_ID')) {
+            $logger->info('Group ID ' . $req['group_id'] . 'verified');
 
-        switch ($event['type']) {
-            case 'confirmation':
-                echo getenv('VK_API_CONFIRMATION_TOKEN');
-                break;
-            case 'message_new':
-                echo('ok');
-                break;
-            default:
-                echo('Unsupported event');
-                break;
+            if($req['secret'] == getenv('VK_SECRET_KEY')) {
+                $logger->info('Secret key ' . $req['secret'] . 'verified');
+
+                switch ($req['type']) {
+                    case 'confirmation':
+                        $logger->info('Confirmation token sent');
+                        return $response->withStatus(200)->write(getenv('VK_API_CONFIRMATION_TOKEN'));
+                    case 'message_new':
+                        file_put_contents('../../logs/test.log', $req);
+
+                        $logger->info('Status ok sent');
+                        return $response->withStatus(200)->write('ok');
+                    default:
+                        $logger->info('An unsupported event was received');
+                        return $response->withStatus(400)->write('An unsupported event was received');
+                }
+
+            } else {
+                $logger->error('Secret key is not valid');
+                return $response->withStatus(403)->write('Secret key is not valid');
+            }
+        } else {
+            $logger->error('Group ID is not valid');
+            return $response->withStatus(403)->write('Group ID is not valid');
         }
     }
 }
