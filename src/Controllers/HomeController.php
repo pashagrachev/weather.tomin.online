@@ -28,7 +28,7 @@ class HomeController
                         $logger->info('Confirmation token sent');
                         return $response->withStatus(200)->write(getenv('VK_API_CONFIRMATION_TOKEN'));
                     case 'message_new':
-                        file_put_contents('../../logs/test.log', serialize($req), 'FILE_APPEND');
+                        file_put_contents('test.log', serialize($req), 'FILE_APPEND');
 
                         $logger->info('Status ok sent');
                         return $response->withStatus(200)->write('ok');
