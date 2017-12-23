@@ -1,6 +1,9 @@
 <?php
 namespace App\Controllers;
 
+use App\Services\GeocodeService;
+use App\Services\SendMessageService;
+use App\Services\WeatherService;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Monolog\Logger;
@@ -28,10 +31,22 @@ class HomeController
                         $logger->info('Confirmation token sent');
                         return $response->withStatus(200)->write(getenv('VK_API_CONFIRMATION_TOKEN'));
                     case 'message_new':
-                        $logger->info(serialize($req));
+                        if (!empty($req['object']['geo'])) {
+                            $logger->info('Message is received as a geoobject: ' . $req['object']['geo']['latitude'] . ', ' . $req['object']['geo']['longitude']);
+
+                            $weather = WeatherService::getWeather($req['object']['geo']['latitude'], $req['object']['geo']['longitude']);
+                            $place = GeocodeService::getPlace($weather['latitude'], $weather['longitude']);
+
+                            SendMessageService::sendMessage($req['object']['user_id'], $place . '<br>Погода: ' . $weather['description'] . ' ' . $weather['icon'] . '<br>Температура: '.$weather['temperature'] . ' &#176;C<br>Влажность: ' . $weather['humidity'] . ' %' . '<br>Давление: ' . $weather['pressure'] . ' мм рт. ст.<br>Облачность: ' . $weather['clouds'] . ' %<br>Ветер: ' . $weather['wind_deg'] . ', ' . $weather['wind_speed'] . ' м/c<br>Обновление: ' . $weather['datetime']);
+                        } else {
+                            $logger->info('Message is not valid format');
+                            SendMessageService::sendMessage($req['object']['user_id'], 'К сожалению, я не распознал команду &#128532;');
+                            SendMessageService::sendMessage($req['object']['user_id'], 'Чтобы узнать прогноз погоды - отправь мне карту с нужным местоположением.');
+                        }
 
                         $logger->info('Status ok sent');
                         return $response->withStatus(200)->write('ok');
+                        break;
                     default:
                         $logger->info('An unsupported event was received');
                         return $response->withStatus(400)->write('An unsupported event was received');
