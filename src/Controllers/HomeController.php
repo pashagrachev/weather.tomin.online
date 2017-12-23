@@ -32,7 +32,7 @@ class HomeController
                         return $response->withStatus(200)->write(getenv('VK_API_CONFIRMATION_TOKEN'));
                     case 'message_new':
                         if (!empty($req['object']['geo'])) {
-                            $logger->info('Message is received as a geoobject: ' . $req['object']['geo']['latitude'] . ', ' . $req['object']['geo']['longitude']);
+                            $logger->info('Message is received as a geoobject: ' . $req['object']['geo']['']['latitude'] . ', ' . $req['object']['geo']['place']['longitude']);
 
                             $weather = WeatherService::getWeather($req['object']['geo']['place']['latitude'], $req['object']['geo']['place']['longitude']);
                             $place = GeocodeService::getPlace($weather['latitude'], $weather['longitude']);
