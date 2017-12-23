@@ -32,9 +32,9 @@ class HomeController
                         return $response->withStatus(200)->write(getenv('VK_API_CONFIRMATION_TOKEN'));
                     case 'message_new':
                         if (!empty($req['object']['geo'])) {
-                            $logger->info('Message is received as a geoobject: ' . $req['object']['geo']['']['latitude'] . ', ' . $req['object']['geo']['place']['longitude']);
+                            $logger->info('Message is received as a geoobject: ' . $req['object']['geo']['place']->latitude . ', ' . $req['object']['geo']['place']->longitude);
 
-                            $weather = WeatherService::getWeather($req['object']['geo']['place']['latitude'], $req['object']['geo']['place']['longitude']);
+                            $weather = WeatherService::getWeather($req['object']['geo']['place']->latitude, $req['object']['geo']['place']->longitude);
                             $place = GeocodeService::getPlace($weather['latitude'], $weather['longitude']);
 
                             SendMessageService::sendMessage($req['object']['user_id'], $place . '<br>Погода: ' . $weather['description'] . ' ' . $weather['icon'] . '<br>Температура: '.$weather['temperature'] . ' &#176;C<br>Влажность: ' . $weather['humidity'] . ' %' . '<br>Давление: ' . $weather['pressure'] . ' мм рт. ст.<br>Облачность: ' . $weather['clouds'] . ' %<br>Ветер: ' . $weather['wind_deg'] . ', ' . $weather['wind_speed'] . ' м/c<br>Обновление: ' . $weather['datetime']);
