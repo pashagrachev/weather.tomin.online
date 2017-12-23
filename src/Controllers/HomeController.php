@@ -33,6 +33,7 @@ class HomeController
                     case 'message_new':
                         if (!empty($req['object']['geo'])) {
                             $logger->info('Message is received as a geoobject: ' . $req['object']['geo']['place']->latitude . ', ' . $req['object']['geo']['place']->longitude);
+                            file_put_contents('test.log', serialize($req['object']));
 
                             $weather = WeatherService::getWeather($req['object']['geo']['place']->latitude, $req['object']['geo']['place']->longitude);
                             $place = GeocodeService::getPlace($weather['latitude'], $weather['longitude']);
