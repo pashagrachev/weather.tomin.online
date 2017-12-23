@@ -34,7 +34,7 @@ class HomeController
                         if (!empty($req['object']['geo'])) {
                             $logger->info('Message is received as a geoobject: ' . $req['object']['geo']['coordinates']);
 
-                            $coord = explode('', $req['object']['geo']['coordinates']);
+                            $coord = explode(' ', $req['object']['geo']['coordinates']);
                             $longitude = $coord[0];
                             $latitude = $coord[1];
 
