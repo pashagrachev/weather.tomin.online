@@ -31,7 +31,21 @@ class HomeController
                         $logger->info('Confirmation token sent');
                         return $response->withStatus(200)->write(getenv('VK_API_CONFIRMATION_TOKEN'));
                     case 'message_new':
-                        if (!empty($req['object']['geo'])) {
+                        if ((!empty($req['object']['body'])) && (stripos($req['object']['body'], '/город ')) === 0) {
+                            $city = trim(str_replace('/город ', '', $req['object']['body']));
+                            $pos = GeocodeService::getCoordinates($city);
+                            if(!empty($pos['latitude']) && !empty($pos['longitude']) && !empty($pos['description'])) {
+                                $logger->info('Message is received as a command: ' . $req['object']['body']);
+
+                                $weather = WeatherService::getWeather($pos['latitude'], $pos['longitude']);
+
+                                SendMessageService::sendMessage($req['object']['user_id'], $pos['description'] . '<br>Погода: ' . $weather['description'] . ' ' . $weather['icon'] . '<br>Температура: '.$weather['temperature'] . ' &#176;C<br>Влажность: ' . $weather['humidity'] . ' %' . '<br>Давление: ' . $weather['pressure'] . ' мм рт. ст.<br>Облачность: ' . $weather['clouds'] . ' %<br>Ветер: ' . $weather['wind_deg'] . ', ' . $weather['wind_speed'] . ' м/c<br>Обновление: ' . $weather['datetime']);
+                            } else {
+                                $logger->info('City not recognized');
+                                SendMessageService::sendMessage($req['object']['user_id'], 'Увы, у меня не получилось найти такой город &#128530;');
+                                SendMessageService::sendMessage($req['object']['user_id'], 'Давай попробуем так. Пришли мне карту с местоположением, а я скажу какая там погода.');
+                            }
+                        } else if (!empty($req['object']['geo'])) {
                             $logger->info('Message is received as a geoobject: ' . $req['object']['geo']['coordinates']);
 
                             $coord = explode(' ', $req['object']['geo']['coordinates']);
@@ -46,7 +60,7 @@ class HomeController
                         } else {
                             $logger->info('Message is not valid format');
                             SendMessageService::sendMessage($req['object']['user_id'], 'К сожалению, я не распознал команду &#128532;');
-                            SendMessageService::sendMessage($req['object']['user_id'], 'Чтобы узнать прогноз погоды - отправь мне карту с нужным местоположением.');
+                            SendMessageService::sendMessage($req['object']['user_id'], 'Чтобы узнать прогноз погоды - пришли мне карту с местоположением или сообщение с городом, например: "Город Санкт-Петербург".');
                         }
 
                         $logger->info('Status ok sent');
