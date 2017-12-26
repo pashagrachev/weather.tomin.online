@@ -13,7 +13,7 @@ class GeocodeService extends APIService {
     }
 
     public static function getPlace($latitude, $longitude) {
-        $params = '?geocode='.$latitude.','.$longitude.'&format=json';
+        $params = '?geocode='.$longitude.','.$latitude.'&format=json';
         $endpoint = getenv('YANDEX_MAPS_GEOCODER_VERSION').'/' . $params;
         $response = self::getInstance()->get(getenv('YANDEX_MAPS_GEOCODER_URL'), $endpoint);
         return $response->response->GeoObjectCollection->featureMember[0]->GeoObject->metaDataProperty->GeocoderMetaData->text;

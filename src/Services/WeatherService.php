@@ -13,6 +13,7 @@ class WeatherService extends APIService {
     }
 
     public static function getWeather($latitude, $longitude) {
+
         $params = '?lat='.$latitude.'&lon='.$longitude.'&units=metric&lang=ru&APPID='.getenv('OPENWEATHERMAP_API_ACCESS_TOKEN');
         $endpoint = getenv('OPENWEATHERMAP_API_VERSION').'/weather' . $params;
         $response = self::getInstance()->get(getenv('OPENWEATHERMAP_API_URL'), $endpoint);

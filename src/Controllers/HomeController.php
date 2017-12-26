@@ -35,24 +35,14 @@ class HomeController
                             $logger->info('Message is received as a geoobject: ' . $req['object']['geo']['coordinates']);
 
                             $coord = explode(' ', $req['object']['geo']['coordinates']);
-                            $longitude = $coord[0];
-                            $latitude = $coord[1];
 
-                            // Debug
-                            $logger->info('Longitude: ' . $longitude);
-                            $logger->info('Latitude: ' . $latitude);
+                            $latitude = $coord[0];
+                            $longitude = $coord[1];
 
                             $weather = WeatherService::getWeather($latitude, $longitude);
-
-                            // Debug
-                            $logger->info('Weather: ' . serialize($weather));
-
                             $place = GeocodeService::getPlace($weather['latitude'], $weather['longitude']);
 
-                            // Debug
-                            $logger->info('Place: ' . serialize($place));
-
-                            //SendMessageService::sendMessage($req['object']['user_id'], $place . '<br>Погода: ' . $weather['description'] . ' ' . $weather['icon'] . '<br>Температура: '.$weather['temperature'] . ' &#176;C<br>Влажность: ' . $weather['humidity'] . ' %' . '<br>Давление: ' . $weather['pressure'] . ' мм рт. ст.<br>Облачность: ' . $weather['clouds'] . ' %<br>Ветер: ' . $weather['wind_deg'] . ', ' . $weather['wind_speed'] . ' м/c<br>Обновление: ' . $weather['datetime']);
+                            SendMessageService::sendMessage($req['object']['user_id'], $place . '<br>Погода: ' . $weather['description'] . ' ' . $weather['icon'] . '<br>Температура: '.$weather['temperature'] . ' &#176;C<br>Влажность: ' . $weather['humidity'] . ' %' . '<br>Давление: ' . $weather['pressure'] . ' мм рт. ст.<br>Облачность: ' . $weather['clouds'] . ' %<br>Ветер: ' . $weather['wind_deg'] . ', ' . $weather['wind_speed'] . ' м/c<br>Обновление: ' . $weather['datetime']);
                         } else {
                             $logger->info('Message is not valid format');
                             SendMessageService::sendMessage($req['object']['user_id'], 'К сожалению, я не распознал команду &#128532;');
