@@ -72,8 +72,11 @@ class HomeController
                         break;
                     case 'group_join':
                         $user_id = $req['object']['user_id'];
+                        $logger->info('A new user id'. $user_id .' joined the group');
+
                         $user = GetUserService::getUser($user_id);
                         $header = HeaderGenerateService::generateHeader($user['photo'], $user['first_name'], $user['last_name']);
+
                         UploadHeaderService::savePhoto($header['image']);
 
                         return $response->withStatus(200)->write('ok');
