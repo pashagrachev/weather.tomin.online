@@ -2,8 +2,11 @@
 namespace App\Controllers;
 
 use App\Services\GeocodeService;
+use App\Services\HeaderGenerateService;
 use App\Services\SendMessageService;
+use App\Services\UploadHeaderService;
 use App\Services\WeatherService;
+use App\Services\GetUserService;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Monolog\Logger;
@@ -30,6 +33,7 @@ class HomeController
                     case 'confirmation':
                         $logger->info('Confirmation token sent');
                         return $response->withStatus(200)->write(getenv('VK_API_CONFIRMATION_TOKEN'));
+                        break;
                     case 'message_new':
                         if ((!empty($req['object']['body'])) && (stripos($req['object']['body'], '/город ')) === 0) {
                             $city = trim(str_replace('/город ', '', $req['object']['body']));
@@ -66,9 +70,18 @@ class HomeController
                         $logger->info('Status ok sent');
                         return $response->withStatus(200)->write('ok');
                         break;
+                    case 'group_join':
+                        $user_id = $req['object']['user_id'];
+                        $user = GetUserService::getUser($user_id);
+                        $header = HeaderGenerateService::generateHeader($user['photo'], $user['first_name'], $user['last_name']);
+                        var_dump(UploadHeaderService::savePhoto());
+
+                        return $response->withStatus(200)->write('ok');
+                        break;
                     default:
                         $logger->info('An unsupported event was received');
                         return $response->withStatus(400)->write('An unsupported event was received');
+                        break;
                 }
 
             } else {
