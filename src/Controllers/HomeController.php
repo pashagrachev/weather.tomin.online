@@ -74,7 +74,7 @@ class HomeController
                         $user_id = $req['object']['user_id'];
                         $user = GetUserService::getUser($user_id);
                         $header = HeaderGenerateService::generateHeader($user['photo'], $user['first_name'], $user['last_name']);
-                        var_dump(UploadHeaderService::savePhoto());
+                        UploadHeaderService::savePhoto($header['image']);
 
                         return $response->withStatus(200)->write('ok');
                         break;

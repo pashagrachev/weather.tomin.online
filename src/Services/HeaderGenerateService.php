@@ -30,19 +30,19 @@ class HeaderGenerateService extends APIService {
         $logoh = imagesy($logoimage);
 
         imagecopy($photoimage, $logoimage, 0, 0, 0, 0, $logow, $logoh);
-        imagejpeg($photoimage, 'uploads/newavatar.jpg');
+        imagejpeg($photoimage, 'uploads/newavatar.jpg', 100);
 
         list($cw, $ch) = getimagesize('uploads/newavatar.jpg');
         imagecopy($new_image, $photoimage, $w-1480, $h-230, 0, 0, $cw, $ch);
 
-        imagejpeg($new_image, 'uploads/newimage.jpg');
+        imagejpeg($new_image, 'uploads/newimage.jpg', 100);
 
         imagedestroy($photoimage);
         imagedestroy($logoimage);
         imagedestroy($new_image);
 
         return [
-            'image' => 'uploads/newimage.jpg',
+            'image' => '/uploads/newimage.jpg',
         ];
     }
 }

@@ -33,10 +33,4 @@ class APIService {
 
         return json_decode($out);
     }
-
-    public function build($params) {
-        $this->params = $params;
-
-        return $this;
-    }
 }

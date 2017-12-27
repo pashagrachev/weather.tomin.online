@@ -20,10 +20,10 @@ class UploadHeaderService extends APIService {
         return $response->response->upload_url;
     }
 
-    public static function uploadPhoto() {
+    public static function uploadPhoto($header) {
         $upload_url = self::getServer();
         $params = array(
-            'photo' => new CURLFile($_SERVER['DOCUMENT_ROOT'].'/uploads/newimage.jpg', 'multipart/form-data', 'uploads/newimage.jpg')
+            'photo' => new CURLFile($_SERVER['DOCUMENT_ROOT'].$header, 'multipart/form-data', 'header.jpg')
         );
         $response = self::getInstance()->post($upload_url, $params);
         return [
@@ -32,8 +32,8 @@ class UploadHeaderService extends APIService {
         ];
     }
 
-    public static function savePhoto() {
-        $photo_arr = self::uploadPhoto();
+    public static function savePhoto($header) {
+        $photo_arr = self::uploadPhoto($header);
         $params = 'photos.saveOwnerCoverPhoto?hash='.$photo_arr['hash'].'&photo='.$photo_arr['photo'].'&v='.getenv('VK_API_VERSION').'&access_token='.getenv('VK_API_ACCESS_TOKEN');
         $response = self::getInstance()->get(getenv('VK_API_URL'), $params);
         var_dump($response);
