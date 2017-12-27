@@ -36,6 +36,6 @@ class UploadHeaderService extends APIService {
         $photo_arr = self::uploadPhoto($header);
         $params = 'photos.saveOwnerCoverPhoto?hash='.$photo_arr['hash'].'&photo='.$photo_arr['photo'].'&v='.getenv('VK_API_VERSION').'&access_token='.getenv('VK_API_ACCESS_TOKEN');
         $response = self::getInstance()->get(getenv('VK_API_URL'), $params);
-        var_dump($response);
+        return $response;
     }
 }
