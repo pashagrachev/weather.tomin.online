@@ -13,7 +13,20 @@ class HeaderGenerateService extends APIService {
     }
 
     public static function generateHeader($photo, $first_name, $last_name) {
-        file_put_contents('uploads/newavatar.jpg', file_get_contents($photo));
+        $ext = array_pop(explode('.', $photo));
+        $avatar = 'uploads/newavatar.' . $ext;
+        file_put_contents($avatar, file_get_contents($photo));
+
+        if ($ext == 'png') {
+
+            $input = imagecreatefrompng($avatar);
+            list($width, $height) = getimagesize($avatar);
+            $output = imagecreatetruecolor($width, $height);
+            $white = imagecolorallocate($output, 255, 255, 255);
+            imagefilledrectangle($output, 0, 0, $width, $height, $white);
+            imagecopy($output, $input, 0, 0, 0, 0, $width, $height);
+            imagejpeg($output, 'uploads/newavatar.jpg');
+        }
 
         list($w, $h) = getimagesize('images/header.png');
         $new_image = imagecreatefrompng('images/header.png');
