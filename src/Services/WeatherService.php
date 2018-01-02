@@ -62,13 +62,18 @@ class WeatherService extends APIService {
                 $wind_deg = 'недоступно';
         }
 
+        $temperature = round($response->main->temp, 1);
+        $humidity = $response->main->humidity;
+        $temperature_felt = round($temperature - 0.4 * ($temperature - 10) * (1 - $humidity / 100), 1);
+
         return [
             'latitude' => $response->coord->lat,
             'longitude' => $response->coord->lon,
             'description' => $response->weather[0]->description,
             'icon' => $icon[$response->weather[0]->icon],
-            'temperature' => round($response->main->temp, 1),
-            'humidity' => $response->main->humidity,
+            'temperature' => $temperature,
+            'temperature_felt' => $temperature_felt,
+            'humidity' => $humidity,
             'pressure' => round($response->main->pressure * 0.750063, 2),
             'clouds' => $response->clouds->all,
             'wind_deg' => $wind_deg,
