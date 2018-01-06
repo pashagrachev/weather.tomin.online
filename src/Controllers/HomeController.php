@@ -39,8 +39,8 @@ class HomeController
                         return $response->withStatus(200)->write(getenv('VK_API_CONFIRMATION_TOKEN'));
                         break;
                     case 'message_new':
-                        if((!empty($req['object']['body'])) && (stripos($req['object']['body'], '/город ')) === 0) {
-                            $city = trim(str_replace('/город ', '', $req['object']['body']));
+                        if((!empty($req['object']['body'])) && (stripos(mb_strtolower($req['object']['body']), 'погода ')) === 0) {
+                            $city = trim(str_replace('погода ', '', mb_strtolower($req['object']['body'])));
                             $pos = GeocodeService::getCoordinates($city);
                             if(!empty($pos['latitude']) && !empty($pos['longitude']) && !empty($pos['description'])) {
                                 $logger->info('Message is received as a command: ' . $req['object']['body']);
