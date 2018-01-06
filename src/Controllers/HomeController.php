@@ -7,6 +7,7 @@ use App\Services\SendMessageService;
 use App\Services\UploadHeaderService;
 use App\Services\WeatherService;
 use App\Services\GetUserService;
+use App\Services\RatingUsersService;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Monolog\Logger;
@@ -17,6 +18,9 @@ class HomeController
 {
     public function __invoke(Request $request, Response $response) {
         $req = $request->getParsedBody();
+
+        $mongo = new \MongoDB\Client();
+        $db = $mongo->tomin_weather;
 
         $logger = new Logger('bot');
         $logger->pushProcessor(new UidProcessor);
@@ -35,7 +39,7 @@ class HomeController
                         return $response->withStatus(200)->write(getenv('VK_API_CONFIRMATION_TOKEN'));
                         break;
                     case 'message_new':
-                        if ((!empty($req['object']['body'])) && (stripos($req['object']['body'], '/город ')) === 0) {
+                        if((!empty($req['object']['body'])) && (stripos($req['object']['body'], '/город ')) === 0) {
                             $city = trim(str_replace('/город ', '', $req['object']['body']));
                             $pos = GeocodeService::getCoordinates($city);
                             if(!empty($pos['latitude']) && !empty($pos['longitude']) && !empty($pos['description'])) {
@@ -43,7 +47,16 @@ class HomeController
 
                                 $weather = WeatherService::getWeather($pos['latitude'], $pos['longitude']);
 
-                                SendMessageService::sendMessage($req['object']['user_id'], $pos['description'] . '<br>Погода: ' . $weather['description'] . ' ' . $weather['icon'] . '<br>Температура: '.$weather['temperature'] . ' &#176;C<br>По ощущениям: ' . $weather['temperature_felt'] . '&#176;C<br>Влажность: ' . $weather['humidity'] . ' %' . '<br>Давление: ' . $weather['pressure'] . ' мм рт. ст.<br>Облачность: ' . $weather['clouds'] . ' %<br>Ветер: ' . $weather['wind_deg'] . ', ' . $weather['wind_speed'] . ' м/c<br>Обновление: ' . $weather['datetime']);
+                                SendMessageService::sendMessage($req['object']['user_id'], $pos['description'] . '<br>Погода: ' . $weather['description'] . ' ' . $weather['icon'] . '<br>Температура: '.$weather['temperature'] . ' &#176;C<br>По ощущениям: ' . $weather['temperature_felt'] . ' &#176;C<br>Влажность: ' . $weather['humidity'] . ' %' . '<br>Давление: ' . $weather['pressure'] . ' мм рт. ст.<br>Облачность: ' . $weather['clouds'] . ' %<br>Ветер: ' . $weather['wind_deg'] . ', ' . $weather['wind_speed'] . ' м/c<br>Обновление: ' . $weather['datetime']);
+
+                                $collection = $db->rating;
+                                $document = $collection->findOne(['user_id' => $req['object']['user_id']]);
+                                if(!empty($document)) {
+                                    $collection->updateOne(['user_id' => $req['object']['user_id']], ['$inc' => ['count' => +1]]);
+                                } else {
+                                    $collection->insertOne(['user_id' => $req['object']['user_id'], 'count' => 1]);
+                                }
+
                             } else {
                                 $logger->info('City not recognized');
                                 SendMessageService::sendMessage($req['object']['user_id'], 'Увы, у меня не получилось найти такой город &#128530;');
@@ -60,7 +73,15 @@ class HomeController
                             $weather = WeatherService::getWeather($latitude, $longitude);
                             $place = GeocodeService::getPlace($weather['latitude'], $weather['longitude']);
 
-                            SendMessageService::sendMessage($req['object']['user_id'], $place . '<br>Погода: ' . $weather['description'] . ' ' . $weather['icon'] . '<br>Температура: '.$weather['temperature'] . ' &#176;C<br>По ощущениям: ' . $weather['temperature_felt'] . '&#176;C<br>Влажность: ' . $weather['humidity'] . ' %' . '<br>Давление: ' . $weather['pressure'] . ' мм рт. ст.<br>Облачность: ' . $weather['clouds'] . ' %<br>Ветер: ' . $weather['wind_deg'] . ', ' . $weather['wind_speed'] . ' м/c<br>Обновление: ' . $weather['datetime']);
+                            SendMessageService::sendMessage($req['object']['user_id'], $place . '<br>Погода: ' . $weather['description'] . ' ' . $weather['icon'] . '<br>Температура: '.$weather['temperature'] . ' &#176;C<br>По ощущениям: ' . $weather['temperature_felt'] . ' &#176;C<br>Влажность: ' . $weather['humidity'] . ' %' . '<br>Давление: ' . $weather['pressure'] . ' мм рт. ст.<br>Облачность: ' . $weather['clouds'] . ' %<br>Ветер: ' . $weather['wind_deg'] . ', ' . $weather['wind_speed'] . ' м/c<br>Обновление: ' . $weather['datetime']);
+
+                            $collection = $db->rating;
+                            $document = $collection->findOne(['user_id' => $req['object']['user_id']]);
+                            if(!empty($document)) {
+                                $collection->updateOne(['user_id' => $req['object']['user_id']], ['$inc' => ['count' => +1]]);
+                            } else {
+                                $collection->insertOne(['user_id' => $req['object']['user_id'], 'count' => 1]);
+                            }
                         } else {
                             $logger->info('Message is not valid format');
                             SendMessageService::sendMessage($req['object']['user_id'], 'К сожалению, я не распознал команду &#128532;');
@@ -74,11 +95,13 @@ class HomeController
                         $user_id = $req['object']['user_id'];
                         $logger->info('A new user id'. $user_id .' joined the group');
 
-                        $user = GetUserService::getUser($user_id);
-                        $header = HeaderGenerateService::generateHeader($user['photo'], $user['first_name'], $user['last_name']);
+                        $join_user = GetUserService::getUser($user_id);
+                        $top_user = RatingUsersService::getRating();
+                        $header = HeaderGenerateService::generateHeader($join_user['photo'], $join_user['first_name'], $join_user['last_name'], $top_user['photo'], $top_user['first_name'], $top_user['last_name']);
 
                         UploadHeaderService::savePhoto($header['image']);
 
+                        $logger->info('Update header group');
                         return $response->withStatus(200)->write('ok');
                         break;
                     default:

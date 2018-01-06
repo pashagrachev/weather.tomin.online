@@ -2,60 +2,53 @@
 
 namespace App\Services;
 
-class HeaderGenerateService extends APIService {
-    private static $instance;
+use Intervention\Image\ImageManagerStatic as Image;
 
-    public static function getInstance() {
-        if (!self::$instance) {
-            self::$instance = new HeaderGenerateService();
-        }
-        return self::$instance;
-    }
+class HeaderGenerateService {
+    public static function generateHeader($join_photo, $join_first_name, $join_last_name, $top_photo, $top_first_name, $top_last_name) {
+        Image::configure(array('driver' => 'gd'));
 
-    public static function generateHeader($photo, $first_name, $last_name) {
-        $ext = array_pop(explode('.', $photo));
-        $avatar = 'uploads/newavatar.' . $ext;
-        file_put_contents($avatar, file_get_contents($photo));
+        function filletPhoto($photo) {
+            $image = Image::make(file_get_contents($photo));
+            $image->encode('png');
 
-        if ($ext == 'png') {
+            $width = $image->getWidth();
+            $height = $image->getHeight();
+            $mask = Image::canvas($width, $height);
 
-            $input = imagecreatefrompng($avatar);
-            list($width, $height) = getimagesize($avatar);
-            $output = imagecreatetruecolor($width, $height);
-            $white = imagecolorallocate($output, 255, 255, 255);
-            imagefilledrectangle($output, 0, 0, $width, $height, $white);
-            imagecopy($output, $input, 0, 0, 0, 0, $width, $height);
-            imagejpeg($output, 'uploads/newavatar.jpg');
+            $mask->circle($width, $width/2, $height/2, function ($draw) {
+                $draw->background('#fff');
+            });
+
+            return $image->mask($mask, false);
         }
 
-        list($w, $h) = getimagesize('images/header.png');
-        $new_image = imagecreatefrompng('images/header.png');
+        function insertAvatar($photo, $x, $y, $first) {
+            $first ? $folder = 'images' : $folder = 'uploads';
+            $image = Image::make($folder.'/header.png');
+            $image->insert($photo, 'top-left', $x, $y)->save('uploads/header.png');
+        }
 
-        $color = imagecolorallocatealpha($new_image, 255, 255, 255, 0);
-        imagettftext($new_image, 24, 0, $w-1350, $h-190, $color, 'fonts/HelveticaBold.ttf', $first_name);
-        imagettftext($new_image, 24, 0, $w-1350, $h-155, $color, 'fonts/HelveticaBold.ttf', $last_name);
+        insertAvatar(filletPhoto($join_photo), 1030, 95, true);
+        insertAvatar(filletPhoto($top_photo), 1030, 260, false);
 
-        $photoimage = imagecreatefromjpeg('uploads/newavatar.jpg');
-        imagealphablending($photoimage, true);
+        function insertText($text, $x, $y) {
+            $image = Image::make('uploads/header.png');
+            $image->text($text, $x, $y, function($font) {
+                $font->file('fonts/Vag_World.ttf');
+                $font->size(30);
+                $font->color('#304b54');
+            });
+            $image->save('uploads/header.png');
+        }
 
-        $logoimage = imagecreatefrompng('images/circle.png');
-        $logow = imagesx($logoimage);
-        $logoh = imagesy($logoimage);
-
-        imagecopy($photoimage, $logoimage, 0, 0, 0, 0, $logow, $logoh);
-        imagejpeg($photoimage, 'uploads/newavatar.jpg', 100);
-
-        list($cw, $ch) = getimagesize('uploads/newavatar.jpg');
-        imagecopy($new_image, $photoimage, $w-1480, $h-230, 0, 0, $cw, $ch);
-
-        imagejpeg($new_image, 'uploads/newimage.jpg', 100);
-
-        imagedestroy($photoimage);
-        imagedestroy($logoimage);
-        imagedestroy($new_image);
+        insertText($join_first_name, 1150, 140);
+        insertText($join_last_name, 1150, 175);
+        insertText($top_first_name, 1150, 300);
+        insertText($top_last_name, 1150, 335);
 
         return [
-            'image' => '/uploads/newimage.jpg',
+            'image' => '/uploads/header.jpg',
         ];
     }
 }
