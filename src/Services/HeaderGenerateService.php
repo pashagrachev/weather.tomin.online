@@ -48,7 +48,7 @@ class HeaderGenerateService {
         insertText($top_last_name, 1150, 335);
 
         return [
-            'image' => '/uploads/header.jpg',
+            'image' => '/uploads/header.png',
         ];
     }
 }
