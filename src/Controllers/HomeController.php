@@ -85,7 +85,7 @@ class HomeController
                         } else {
                             $logger->info('Message is not valid format');
                             SendMessageService::sendMessage($req['object']['user_id'], 'К сожалению, я не распознал команду &#128532;');
-                            SendMessageService::sendMessage($req['object']['user_id'], 'Чтобы узнать прогноз погоды - пришли мне карту с местоположением или команду "/город" с названием города, например: "/город Санкт-Петербург".');
+                            SendMessageService::sendMessage($req['object']['user_id'], 'Чтобы узнать прогноз погоды - пришли мне карту с местоположением или команду "погода" с названием города, например: погода Санкт-Петербург');
                         }
 
                         $logger->info('Status ok sent');
