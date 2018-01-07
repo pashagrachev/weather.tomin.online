@@ -6,3 +6,4 @@
 /.env
 /composer.lock
 /public/uploads
+/*.log
