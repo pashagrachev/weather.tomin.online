@@ -4,11 +4,9 @@ namespace App\Services;
 
 class APIService {
     private $curl;
-    private $params = [];
 
     public function init() {
         $this->curl = curl_init();
-        //curl_setopt($this->curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
         curl_setopt($this->curl, CURLOPT_HEADER, 0);
         curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($this->curl, CURLOPT_SSL_VERIFYPEER, false);
