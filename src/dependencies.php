@@ -24,6 +24,12 @@ $container['HomeController'] = function ($c)
     return new App\Controllers\HomeController;
 };
 
+// reset controller
+$container['ResetCountController'] = function ($c)
+{
+    return new App\Controllers\ResetCountController;
+};
+
 // deployment controller
 $container['DeploymentController'] = function ($c)
 {

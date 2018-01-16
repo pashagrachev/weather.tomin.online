@@ -12,6 +12,13 @@ $app->any('/', function(Request $request, Response $response){
     return $controller($request, $response);
 });
 
+$app->any('/reset', function(Request $request, Response $response){
+    $this->logger->info("Slim-Skeleton '/reset route");
+
+    $controller = new Controllers\ResetCountController;
+    return $controller($request, $response);
+});
+
 
 $app->any('/deployment', function(Request $request, Response $response){
     $this->logger->info("Slim-Skeleton '/deployment' route");
