@@ -1,26 +1,71 @@
-# Slim Framework 3 Skeleton Application
+# Weather - VK Bot
+Бот для социальной сети ВКонтакте. Присылает текущий прогноз погоды для выбранного населенного пункта в ответ на сообщение с командой или прикрепленной картой.
 
-Use this skeleton application to quickly setup and start working on a new Slim Framework 3 application. This application uses the latest Slim 3 with the PHP-View template renderer. It also uses the Monolog logger.
+## 1. Как работает бот?
+Бот присылает текущую погоду в ответ на команду или прикрепленную к сообщению карту с местоположением. Можно просто написать боту в сообщения сообщества что угодно - он подскажет что делать дальше.
 
-This skeleton application was built for Composer. This makes setting up a new Slim Framework application quick and easy.
+#### 1.1. Получение погоды по команде 
+**Руководство:**
+1. [Откройте диалог](https://vk.me/botpogodka) с сообществом [Бот Погода](https://vk.com/botpogodka).
+2. Напишите команду "погода" с названием нужного населенного пункта в формате "погода Название_населенного_пункта". Пример: погода Санкт-Петербург. _Примечание: регистр написания команды и населенного пункта значения не имеет._
+3. Отправьте команду в сообщении. _Примечание: к самому сообщению ничего прикреплять не нужно - бот все равно проигнорирует прикрепленные файлы и попытается распознать тело сообщения. Пересланные сообщения бот так же не принимает._
+4. Подождите несколько секунд - бот пришлет в ответ текущую погоду для данного места.
 
-## Install the Application
+**Пример запроса:**
 
-Run this command from the directory in which you want to install your new Slim Framework application.
+    погода Санкт-Петербург
 
-    php composer.phar create-project slim/slim-skeleton [my-app-name]
+**Пример ответа:**
 
-Replace `[my-app-name]` with the desired directory name for your new application. You'll want to:
+    Россия, Санкт-Петербург 
+    Погода: мокрый снег 
+    Температура: 0 °C 
+    По ощущениям: 0.5 °C 
+    Влажность: 88 % 
+    Давление: 751.56 мм рт. ст. 
+    Облачность: 90 % 
+    Ветер: западный, 8 м/c 
+    Обновление: 07.01.2018 в 08:00
 
-* Point your virtual host document root to your new application's `public/` directory.
-* Ensure `logs/` is web writeable.
+#### 1.2. Получение погоды по местоположению
+**Руководство**
+1. [Откройте диалог](https://vk.me/botpogodka) с сообществом [Бот Погода](https://vk.com/botpogodka).
+2. Прикрепите к сообщению карту с местоположением.
+3. В тексте сообщения ничего не указывайте - просто отправьте прикрепленную карту боту. _Примечание: в противном случае - бот попытается распознать текст сообщения, проигнорировав карту._
+4. Подождите несколько секунд - бот пришлет в ответ текущую погоду для данного места.
 
-To run the application in development, you can also run this command. 
+**Пример запроса:**
 
-	php composer.phar start
+![alt text](/public/images/map.jpg)
 
-Run this command to run the test suite
+**Пример ответа:**
 
-	php composer.phar test
+    Россия, Москва, Тайницкий сад 
+    Погода: пасмурно 
+    Температура: 2.3 °C 
+    По ощущениям: 2.3 °C 
+    Влажность: 100 % 
+    Давление: 758.31 мм рт. ст. 
+    Облачность: 90 % 
+    Ветер: юго-западный, 3 м/c 
+    Обновление: 07.01.2018 в 08:00
+    
+## 2. Используемые технологии
+Бот написан на _PHP_, использует микрофреймворк _Slim Framework_ и базу данных _MongoDB_ для мелких задач.
 
-That's it! Now go build something cool.
+В основу функционирования заложены: [API VK ботов](https://vk.com/dev/bots_docs), [API OpenWeatherMap](http://openweathermap.org/api), [API Яндекс.Карт - Геокодер](https://tech.yandex.ru/maps/geocoder/).
+
+## 3. Установка бота
+* Склонируйте репозиторий в папку WWW-домена.
+* Настройте рабочим WWW-каталогом директорию `public/` в корне сайта (только к этой директории и ее содержимому должен быть публичный доступ).
+* Выполните команду
+
+
+    composer install
+
+в корневой директории для установки Composer-зависимостей.
+* Выставьте необходимые права доступа на директории `public/` и `logs/` (и их содержимое).
+* Скопируйте файл `.env.example` и переименуйте в `.env`. Отредактируйте файл в соответствии с вашими настройками.
+
+## 4. Лицензия
+Исходный код данного бота является открытым и распространяется по лицензии [Creative Commons - Attribution-NonCommercial-NoDerivatives 4.0 International](LICENSE.md) (использование в некоммерческих целях без создания производных).
