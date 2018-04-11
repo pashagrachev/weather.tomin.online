@@ -13,8 +13,9 @@ class GetUserService extends APIService {
     }
 
     public static function getUser($user_id) {
-        $params = 'users.get?user_ids='.$user_id.'&fields=photo_100&v='.getenv('VK_API_VERSION');
+        $params = 'users.get?user_ids='.$user_id.'&fields=photo_100&access_token='.getenv('VK_API_ACCESS_TOKEN').'&v='.getenv('VK_API_VERSION');
         $response = self::getInstance()->get(getenv('VK_API_URL'), $params);
+
         return [
             'photo' => $response->response[0]->photo_100,
             'first_name' => $response->response[0]->first_name,
